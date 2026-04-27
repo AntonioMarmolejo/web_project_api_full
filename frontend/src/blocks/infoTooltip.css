@@ -1,0 +1,104 @@
+.infotooltip {
+    position: fixed; /* ✅ en vez de absolute */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0; /* elimina el margin-top */
+    border-radius: 5px;
+    width: 430px;
+    height: 330px;
+    background-color: var(--color-ventanas-popup);
+    z-index: 1001; /* mayor que el overlay */
+}
+.infotooltip__overlay {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid red;
+}
+.infotooltip__content {
+    border: 1px solid red;
+    width: 100%;
+    position: relative;
+    z-index: 1001;
+}
+.infotooltip__circle {
+    display: flex;
+    width: 120px;
+    height: 120px;
+    border-radius: 100px;
+    border: 3px solid red;
+    margin: auto;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 50px;
+    margin-top: 60px;
+    border-color: black;
+}
+
+.infotooltip__circle--success {
+    border-color: black;
+}
+
+.infotooltip__circle--error {
+    border-color: red;
+    color: red;
+}
+
+.infotooltip__close-button {
+    position: absolute;
+    top: -40px; /* ✅ relativo al modal */
+    right: -40px;
+    cursor: pointer;
+}
+
+.infotooltip__close-button:hover {
+    transition: 0.5s;
+    transform: scale(1.04, 1.04);
+    filter: brightness(70%);
+}
+
+.infotool__title {
+    width: 90%; /* ✅ en vez de 358px */
+    margin: 32px auto 0;
+    text-align: center;
+}
+
+.info-tooltip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+}
+
+.info-tooltip__icon {
+    width: 64px;
+    height: 64px;
+}
+
+.info-tooltip__message {
+    font-size: 16px;
+    text-align: center;
+}
+
+@media screen and (min-width: 320px) and (max-width: 600px) {
+    .infotooltip {
+        width: 90%;
+        height: auto;
+        padding: 20px;
+    }
+    .infotooltip__circle {
+        width: 90px;
+        height: 90px;
+        font-size: 36px;
+        margin-top: 30px;
+    }
+    .infotooltip__close-button {
+        top: -30px;
+        right: -10px;
+    }
+}

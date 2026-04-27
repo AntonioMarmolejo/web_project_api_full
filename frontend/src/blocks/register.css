@@ -1,0 +1,119 @@
+.register {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+.register_header {
+    display: flex;
+    width: 880px;
+    height: 75px;
+    margin-top: 45px;
+    justify-content: flex-end;
+    border: none;
+    border-bottom: 1px solid #545454;
+    justify-content: space-between;
+}
+
+.register_logo {
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.register_sigup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    font-size: 24px;
+    border-radius: 8px;
+    padding: 0;
+    color: aliceblue;
+    margin: 60px auto 0;
+}
+
+.register_input {
+    width: 100%;
+    height: 27px;
+    border-radius: 4px;
+    padding: 0px;
+    margin-top: 25px;
+    background-color: var(--color-fondo-principal);
+    border: none;
+    border-bottom: 1px solid #ccc;
+    color: var(--color-text);
+}
+
+.register_button {
+    margin-top: 150px;
+    width: 100%;
+    height: 50px;
+    border-radius: 7px;
+    color: #000;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.register_sigin {
+    font-family: "Arial", sans-serif;
+    color: var(--color-texto-principal);
+    color: aliceblue;
+    width: 111px;
+    height: 44px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    font-family: "Arial", sans-serif;
+    font-weight: bold;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.register_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: auto;
+    background-color: var(--color-fondo-secundario);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding-top: 0;
+    padding-right: 24px;
+    padding-left: 24px;
+}
+.register_spam {
+    font-family: "Arial", sans-serif;
+    color: aliceblue;
+    margin-top: 15px;
+    margin-bottom: 80px;
+}
+
+.register_link {
+    text-decoration: none;
+    color: var(--color-link);
+}
+@media screen and (min-width: 320px) and (max-width: 600px) {
+    .register_header {
+        width: 100%;
+    }
+
+    .register_form {
+        width: 100%;
+        padding: 0 16px;
+    }
+    .register_input,
+    .register_button {
+        width: 100%;
+    }
+}
+@media screen and (min-width: 769px) and (max-width: 909px) {
+    .main {
+        display: flex;
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+    }
+}

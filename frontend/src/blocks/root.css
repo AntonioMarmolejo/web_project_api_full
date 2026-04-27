@@ -1,0 +1,24 @@
+:root {
+    --color-fondo-principal: #000;
+    --color-secundario-textos-primarios-bordes: #ffff;
+    --color-text: #fff;
+    --color-textos-secundarios: #545454;
+    --color-textos-secundarios: #545454;
+    --color-ventanas-popup: #fff;
+    --color-link: #1184ff;
+}
+
+/* body,
+main,
+header,
+div,
+img,
+h2,
+button,
+p,
+form,
+label,
+section,
+footer {
+  border: 1px solid red;
+} */
