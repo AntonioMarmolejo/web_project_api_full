@@ -1,17 +1,18 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-//Obtener todos los usuarios
+const { JWT_SECRET = 'dev-secret-key' } = process.env;
+
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).json(users);
   } catch (err) {
-    console.error(err);//Para depurar en el servidor
-    res.status(500).json({ message: 'Error del servidor' })
+    res.status(500).json({ message: 'Error del servidor' });
   }
 };
 
-//Obtener un usuario por ID
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId).orFail(() => {
@@ -19,89 +20,117 @@ const getUserById = async (req, res) => {
       error.statusCode = 404;
       throw error;
     });
-
     res.status(200).json(user);
-
   } catch (err) {
     if (err.statusCode === 404) {
       return res.status(404).json({ message: err.message });
     }
-
     if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'ID no válido' })
+      return res.status(400).json({ message: 'ID no válido' });
     }
-    console.error(err);
-    res.status(500).json({ message: 'Error en el servidor' })
-  }
-};
-
-//Crear un nuevo usuario
-const createUser = async (req, res) => {
-  try {
-    const { name, about, avatar } = req.body;
-
-    if (!name || !about || !avatar) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
-
-    const newUser = await User.create({ name, about, avatar });
-    res.status(201).json(newUser);
-
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: 'Datos inválidos', details: err.message });
-    }
-    console.error(err);//Par depurar en el servidor
     res.status(500).json({ message: 'Error en el servidor' });
   }
 };
 
-//Actualizar un usuario por ID
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).orFail(() => {
+      const error = new Error('Usuario no encontrado');
+      error.statusCode = 404;
+      throw error;
+    });
+    res.status(200).json(user);
+  } catch (err) {
+    if (err.statusCode === 404) {
+      return res.status(404).json({ message: err.message });
+    }
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
+const createUser = async (req, res) => {
+  try {
+    const { name, about, avatar, email, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({ name, about, avatar, email, password: hashedPassword });
+
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+    res.status(201).json(userResponse);
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'El correo ya está registrado' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Datos inválidos', details: err.message });
+    }
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+    }
+
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(200).json({ token });
+  } catch (err) {
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
 const updateUserProfile = async (req, res) => {
   try {
     const { name, about } = req.body;
     if (!name || !about) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' })
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
-    const updateUser = await User.findByIdAndUpdate(req.user._id, //Id del usuario
-      { name, about }, //Nuevos datos
-      { new: true, runValidators: true } //Opciones: Devolver el documento actualizado
-    )
-    res.status(200).json(updateUser);
-
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true, runValidators: true },
+    );
+    res.status(200).json(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: 'Datos inválidos', details: err.message });
     }
-    console.error(err);
     res.status(500).json({ message: 'Error en el servidor' });
   }
-}
+};
 
-//Actualizar el avatar
 const updateAvatarProfile = async (req, res) => {
   try {
     const { avatar } = req.body;
-
     if (!avatar) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' })
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
-    const updateAvatar = await User.findByIdAndUpdate(
+    const updatedAvatar = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true, runValidators: true } //Opciones: Devolver el documento actualizado
-    )
-
-    res.status(200).json(updateAvatar);
+      { new: true, runValidators: true },
+    );
+    res.status(200).json(updatedAvatar);
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: 'Datos inválidos', details: err.message });
     }
-    console.error(err);
     res.status(500).json({ message: 'Error en el servidor' });
   }
-}
+};
 
-module.exports = { getUsers, getUserById, createUser, updateUserProfile, updateAvatarProfile };
+module.exports = { getUsers, getUserById, getCurrentUser, createUser, login, updateUserProfile, updateAvatarProfile };

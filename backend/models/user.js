@@ -1,31 +1,41 @@
 const mongoose = require('mongoose');
-const urlRegex = /^(https?:\/\/)(www\.)?[a-zA-Z0-9.-]+\.[a-z]{2,}\/?.*$/;
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
     minlength: 2,
-    maxlength: 30
+    maxlength: 30,
+    default: 'Jacques Cousteau',
   },
   about: {
     type: String,
-    required: true,
     minlength: 2,
-    maxlength: 30
+    maxlength: 30,
+    default: 'Explorador',
   },
   avatar: {
     type: String,
-    required: true,
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator: function (v) {
-        return urlRegex.test(v);
-      },
-      message: 'El enlace del Avatar no es válido'
+      validator: (v) => validator.isURL(v),
+      message: 'El enlace del Avatar no es válido',
     },
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: (v) => validator.isEmail(v),
+      message: 'El correo electrónico no es válido',
+    },
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false,
   },
 });
 
-const User = mongoose.model('user', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('user', userSchema);

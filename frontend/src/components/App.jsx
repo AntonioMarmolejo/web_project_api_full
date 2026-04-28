@@ -30,13 +30,10 @@ export default function App() {
         const token = localStorage.getItem("jwt");
         if (token) {
             checkToken(token)
-                .then((data) => {
-                    setCurrentUser({ email: data.data.email, _id: data.data._id });
+                .then((userData) => {
+                    setCurrentUser(userData);
                     setLoggedIn(true);
                     api.getInitialCard().then(setCards).catch(console.error);
-                    api.getUserInfo().then((userData) => {
-                        setCurrentUser((prev) => ({ ...prev, ...userData }));
-                    }).catch(console.error);
                 })
                 .catch((err) => {
                     console.error("Token inválido:", err);
