@@ -1,23 +1,15 @@
-//cards.js
 const express = require('express');
-const { getCards, createCard, deleteCard, addLike, removeLike } = require('../controllers/cards');
+const {
+  getCards, createCard, deleteCard, addLike, removeLike,
+} = require('../controllers/cards');
+const { validateCardBody, validateCardId } = require('../middleware/validation');
+
 const router = express.Router();
 
-
-//Devuelve el Json de todas las tarjetas
 router.get('/', getCards);
-
-//Crea una nueva tarjeta
-router.post('/', createCard);
-
-//Elimina una tarjeta por ID
-router.delete('/:cardId', deleteCard);
-
-//Añade un like a una tarjeta
-router.put('/:cardId/likes', addLike);
-
-//Quita un like a una tarjeta
-router.delete('/:cardId/likes', removeLike);
+router.post('/', validateCardBody, createCard);
+router.delete('/:cardId', validateCardId, deleteCard);
+router.put('/:cardId/likes', validateCardId, addLike);
+router.delete('/:cardId/likes', validateCardId, removeLike);
 
 module.exports = router;
-

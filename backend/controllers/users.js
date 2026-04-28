@@ -4,133 +4,147 @@ const User = require('../models/user');
 
 const { JWT_SECRET = 'dev-secret-key' } = process.env;
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    res.status(200).json(users);
+    return res.status(200).json(users);
   } catch (err) {
-    res.status(500).json({ message: 'Error del servidor' });
+    return next(err);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId).orFail(() => {
       const error = new Error('Usuario no encontrado');
       error.statusCode = 404;
       throw error;
     });
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (err) {
-    if (err.statusCode === 404) {
-      return res.status(404).json({ message: err.message });
-    }
     if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'ID no válido' });
+      const error = new Error('ID no válido');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).orFail(() => {
       const error = new Error('Usuario no encontrado');
       error.statusCode = 404;
       throw error;
     });
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (err) {
-    if (err.statusCode === 404) {
-      return res.status(404).json({ message: err.message });
-    }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
-    const { name, about, avatar, email, password } = req.body;
+    const {
+      name, about, avatar, email, password,
+    } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({ name, about, avatar, email, password: hashedPassword });
+    const newUser = await User.create({
+      name, about, avatar, email, password: hashedPassword,
+    });
 
     const userResponse = newUser.toObject();
     delete userResponse.password;
-    res.status(201).json(userResponse);
+    return res.status(201).json(userResponse);
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(409).json({ message: 'El correo ya está registrado' });
+      const error = new Error('El correo ya está registrado');
+      error.statusCode = 409;
+      return next(error);
     }
     if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: 'Datos inválidos', details: err.message });
+      const error = new Error('Datos inválidos');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+      const error = new Error('Correo o contraseña incorrectos');
+      error.statusCode = 401;
+      return next(error);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+      const error = new Error('Correo o contraseña incorrectos');
+      error.statusCode = 401;
+      return next(error);
     }
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-    res.status(200).json({ token });
+    return res.status(200).json({ token });
   } catch (err) {
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const updateUserProfile = async (req, res) => {
+const updateUserProfile = async (req, res, next) => {
   try {
     const { name, about } = req.body;
-    if (!name || !about) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
       { new: true, runValidators: true },
     );
-    res.status(200).json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: 'Datos inválidos', details: err.message });
+      const error = new Error('Datos inválidos');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const updateAvatarProfile = async (req, res) => {
+const updateAvatarProfile = async (req, res, next) => {
   try {
     const { avatar } = req.body;
-    if (!avatar) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
 
     const updatedAvatar = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
       { new: true, runValidators: true },
     );
-    res.status(200).json(updatedAvatar);
+    return res.status(200).json(updatedAvatar);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: 'Datos inválidos', details: err.message });
+      const error = new Error('Datos inválidos');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-module.exports = { getUsers, getUserById, getCurrentUser, createUser, login, updateUserProfile, updateAvatarProfile };
+module.exports = {
+  getUsers,
+  getUserById,
+  getCurrentUser,
+  createUser,
+  login,
+  updateUserProfile,
+  updateAvatarProfile,
+};

@@ -1,21 +1,17 @@
 const Card = require('../models/card');
 
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
-    res.status(200).json(cards);
+    return res.status(200).json(cards);
   } catch (err) {
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const createCard = async (req, res) => {
+const createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
-
-    if (!name || !link) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
 
     const newCard = await Card.create({
       name,
@@ -25,16 +21,18 @@ const createCard = async (req, res) => {
       createdAt: new Date(),
     });
 
-    res.status(201).json(newCard);
+    return res.status(201).json(newCard);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: 'Datos inválidos', details: err.message });
+      const error = new Error('Datos inválidos');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
   try {
     const { cardId } = req.params;
     const card = await Card.findById(cardId).orFail(() => {
@@ -44,23 +42,24 @@ const deleteCard = async (req, res) => {
     });
 
     if (card.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'No tienes permiso para eliminar esta tarjeta' });
+      const error = new Error('No tienes permiso para eliminar esta tarjeta');
+      error.statusCode = 403;
+      return next(error);
     }
 
     await Card.findByIdAndDelete(cardId);
-    res.status(200).json({ message: 'Tarjeta eliminada exitosamente' });
+    return res.status(200).json({ message: 'Tarjeta eliminada exitosamente' });
   } catch (err) {
-    if (err.statusCode === 404) {
-      return res.status(404).json({ message: err.message });
-    }
     if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'ID no válido' });
+      const error = new Error('ID no válido');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const addLike = async (req, res) => {
+const addLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -72,19 +71,18 @@ const addLike = async (req, res) => {
       throw error;
     });
 
-    res.status(200).json(card);
+    return res.status(200).json(card);
   } catch (err) {
-    if (err.statusCode === 404) {
-      return res.status(404).json({ message: err.message });
-    }
     if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'ID no válido' });
+      const error = new Error('ID no válido');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-const removeLike = async (req, res) => {
+const removeLike = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -96,16 +94,17 @@ const removeLike = async (req, res) => {
       throw error;
     });
 
-    res.status(200).json(card);
+    return res.status(200).json(card);
   } catch (err) {
-    if (err.statusCode === 404) {
-      return res.status(404).json({ message: err.message });
-    }
     if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'ID no válido' });
+      const error = new Error('ID no válido');
+      error.statusCode = 400;
+      return next(error);
     }
-    res.status(500).json({ message: 'Error en el servidor' });
+    return next(err);
   }
 };
 
-module.exports = { getCards, createCard, deleteCard, addLike, removeLike };
+module.exports = {
+  getCards, createCard, deleteCard, addLike, removeLike,
+};

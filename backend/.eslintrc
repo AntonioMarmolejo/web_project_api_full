@@ -3,7 +3,8 @@
 
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-    "no-console": ["warn", { "allow": ["log"] }],
-    "linebreak-style": ["off"]
+    "no-console": ["warn", { "allow": ["log", "error"] }],
+    "linebreak-style": ["off"],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }]
   }
 }
