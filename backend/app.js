@@ -12,8 +12,17 @@ const { login, createUser } = require('./controllers/users');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.use(cors());
-app.options('*', cors());
+const corsOptions = {
+  origin: [
+    'https://www.proyectodiecinueve.mooo.com',
+    'https://proyectodiecinueve.mooo.com',
+    'http://localhost:3000',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 app.use(requestLogger);
