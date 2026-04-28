@@ -1,6 +1,6 @@
 import { setToken, removeToken } from './token';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://www.apiproyectodiecinueve.mooo.com';
 
 export const checkToken = async (token) => {
   const response = await fetch(`${BASE_URL}/users/me`, {
