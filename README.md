@@ -16,6 +16,22 @@
 
 ---
 
+## Capturas de pantalla
+
+### Demostración de registro de usuario
+![Demostración de registro](frontend/src/images/Ejemplo%20de%20cómo%20registrar%20usuario%20en%20la%20palicación%20web_project_api_full.gif)
+
+### Registro exitoso
+![Registro exitoso](frontend/src/images/Registro_exitoso.png)
+
+### Pantalla del perfil de usuario
+![Perfil de usuario](frontend/src/images/Patalla_del_perfil_de_usuario.png)
+
+### Demostración de cómo agregar tarjetas
+![Agregar tarjeta](frontend/src/images/Ejemplo%20de%20cómod%20agregar%20tarjetas%20en%20web_porject_api_full.gif)
+
+---
+
 ## Tecnologías y técnicas utilizadas
 
 ### Backend
@@ -41,6 +57,15 @@
 | **Vite** | Bundler y servidor de desarrollo |
 | **CSS Modules** | Estilos encapsulados por componente |
 
+### Despliegue e infraestructura
+| Tecnología | Uso |
+|---|---|
+| **Google Cloud Compute Engine** | Servidor virtual en la nube (VM Ubuntu) |
+| **nginx** | Servidor web y proxy inverso hacia la API |
+| **PM2** | Gestor de procesos Node.js con auto-reinicio |
+| **certbot / Let's Encrypt** | Certificado SSL/HTTPS gratuito y renovación automática |
+| **mooo.com** | Dominio registrado para frontend y subdominio de API |
+
 ### Arquitectura y patrones
 - API RESTful con respuestas JSON
 - Manejo centralizado de errores con middleware Express
@@ -48,18 +73,7 @@
 - Validación de esquemas con celebrate/Joi antes de llegar a los controladores
 - Rutas protegidas con middleware de autenticación
 - Logging separado de peticiones y errores con Winston
-
----
-
-## Capturas de pantalla
-
-> Las imágenes del proyecto se agregarán próximamente.
-
----
-
-## Video de demostración
-
-> El video de demostración se agregará próximamente.
+- Recuperación automática del servidor tras crash mediante PM2
 
 ---
 
